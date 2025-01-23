@@ -3,9 +3,9 @@ import pandas as pd
 import snowflake.connector
 
 conn = snowflake.connector.connect(
-user='jwick26143',
-password='Radialhwy1825@',
-account='fb74146.central-us.azure',
+user='',
+password='',
+account='',
 warehouse='COMPUTE_WH',
 database='ABC',
 schema='DB_CONFIG')
@@ -33,8 +33,8 @@ table_list = ['Person.Person','HumanResources.Department', 'HumanResources.Emplo
 # Define connection parameters
 server = 'DESKTOP-64SMG1I'  # e.g., 'localhost' or '192.168.1.1'
 database = 'AdventureWorks2019'  # e.g., 'test_db'
-username = 'sa'
-password = 'Talloaks612@'
+username = ''
+password = ''
 
 # Create a connection string
 connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
@@ -74,8 +74,8 @@ def fetch_table_data(table_name):
 # Define connection parameters
     server = 'DESKTOP-64SMG1I'  # e.g., 'localhost' or '192.168.1.1'
     database = 'AdventureWorks2019'  # e.g., 'test_db'
-    username = 'sa'
-    password = 'Talloaks612@'
+    username = ''
+    password = ''
 
     # Create a connection string
     connection_string = f'DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE={database};UID={username};PWD={password}'
@@ -129,9 +129,9 @@ from snowflake.connector.pandas_tools import write_pandas
 
 
 snowflake_conn = snowflake.connector.connect(
-        user='jwick26143',
-        password='Radialhwy1825@',
-        account='fb74146.central-us.azure',
+        user='',
+        password='',
+        account='',
         warehouse='COMPUTE_WH',
         database='ABC',
         schema='DL_SQLSERVER')
@@ -152,9 +152,9 @@ table_name
 def load_dataframe_to_snowflake(df, snowflake_table_name):
     # Define Snowflake connection parameters
     snowflake_conn = snowflake.connector.connect(
-        user='jwick26143',
-        password='Radialhwy1825@',
-        account='DMXZVDN.KR23391',
+        user='',
+        password='',
+        account='',
         warehouse='COMPUTE_WH',
         database='ABC',
         schema='DL_SQLSERVER'
