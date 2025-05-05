@@ -1,0 +1,157 @@
+import requests
+from datetime import datetime, timedelta
+
+# --- Config ---
+TOKEN_URL = "https://www.xyz.com/api/token"
+DATA_URL = "https://www.xyz.com/api/v1/"
+CLIENT_ID = "your_client_id"
+CLIENT_SECRET = "your_client_secret"
+TOKEN_EXPIRY_MINUTES = 40
+
+# --- Function to Get New Token ---
+def get_bearer_token():
+    payload = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "client_credentials"
+    }
+    response = requests.post(TOKEN_URL, data=payload)
+    response.raise_for_status()
+    token_data = response.json()
+    token = token_data["access_token"]
+    expiry_time = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRY_MINUTES)
+    print(f"New token received. Expires at {expiry_time}")
+    return token, expiry_time
+
+# --- Main Data Request Function ---
+def get_request():
+    data = []
+    token, expiry_time = get_bearer_token()
+    headers = {"Authorization": f"Bearer {token}"}
+    skip = 0
+
+    while True:
+        # Refresh token if expired
+        if datetime.utcnow() >= expiry_time:
+            print("Token expired. Refreshing...")
+            token, expiry_time = get_bearer_token()
+            headers = {"Authorization": f"Bearer {token}"}
+
+        page_url = f'{DATA_URL}?skip={skip}'
+        response = requests.get(page_url, headers=headers)
+
+        if response.status_code == 200:
+            json_data = response.json()
+            data.extend(json_data)
+
+            # Optional: Print progress every 1000 records
+            if len(data) % 1000 == 0:
+                print(f"Fetched {len(data)} records so far...")
+
+            if len(json_data) < 100:
+                break
+            else:
+                skip += 100
+        else:
+            print(f"Request failed with status: {response.status_code}")
+            break
+
+    return data
+
+# --- Run the function ---
+if __name__ == "__main__":
+    all_data = get_request()
+    print(f"Total records fetched: {len(all_data)}")
+
+--------------------------------------------------------------------------------------
+
+-- The first new version:
+---------------------------------------------------------------------------------------
+
+import requests
+from datetime import datetime, timedelta
+import time
+
+# --- Configuration ---
+TOKEN_URL = "https://api.example.com/token"
+DATA_URL = "https://api.example.com/data"
+CLIENT_ID = "your_client_id"
+CLIENT_SECRET = "your_client_secret"
+PAGE_LIMIT = 100
+TOKEN_EXPIRY_MINUTES = 40
+
+# --- Token Management ---
+def get_bearer_token():
+    payload = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+        "grant_type": "client_credentials"
+    }
+    response = requests.post(TOKEN_URL, data=payload)
+    response.raise_for_status()
+    token_data = response.json()
+    token = token_data["access_token"]
+    expiry_time = datetime.utcnow() + timedelta(minutes=TOKEN_EXPIRY_MINUTES)
+    print("Token received, valid until:", expiry_time)
+    return token, expiry_time
+
+# --- Data Extraction ---
+def fetch_data(bearer_token, page):
+    headers = {
+        "Authorization": f"Bearer {bearer_token}"
+    }
+    params = {
+        "page": page
+    }
+    response = requests.get(DATA_URL, headers=headers, params=params)
+    if response.status_code == 401:
+        raise Exception("Unauthorized: Token may have expired.")
+    response.raise_for_status()
+    return response.json()
+
+def extract_all_data():
+    token, expiry_time = get_bearer_token()
+    page = 1
+    all_data = []
+
+    while True:
+        if datetime.utcnow() >= expiry_time:
+            print("Token expired, refreshing...")
+            token, expiry_time = get_bearer_token()
+
+        try:
+            print(f"Fetching page {page}...")
+            data = fetch_data(token, page)
+
+            if not data or len(data) == 0:
+                print("No more data.")
+                break
+
+            all_data.extend(data)
+
+            # Print count every time the length is a multiple of 1000
+            if len(all_data) % 1000 == 0:
+                print(f"Fetched {len(all_data)} records so far...")
+
+            page += 1
+
+            # Sleep to respect API rate limits if needed
+            time.sleep(0.5)
+
+        except Exception as e:
+            print("Error occurred:", e)
+            break
+
+    return all_data
+
+# --- Run the pipeline ---
+if __name__ == "__main__":
+    data = extract_all_data()
+    print(f"Total records fetched: {len(data)}")
+
+
+
+
+
+
+
